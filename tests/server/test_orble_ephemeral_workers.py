@@ -118,7 +118,11 @@ async def test_start_creates_a_box_and_runs_the_worker_image(
         }
     ]
     [(cmd, kwargs)] = fake_e2b.sandbox.commands.calls
-    assert shlex.split(cmd) == [
+    run, delete = cmd.split("; ")
+    assert delete == (
+        "curl -fsS -m 10 -X POST http://169.254.77.77/orble/delete >/dev/null"
+    )
+    assert shlex.split(run) == [
         "docker",
         "run",
         "--rm",
@@ -165,7 +169,7 @@ async def test_start_keeps_secrets_off_the_command_line(
     [(cmd, kwargs)] = fake_e2b.sandbox.commands.calls
     assert "secret-value" not in cmd
     assert "worker-token" not in cmd
-    assert shlex.split(cmd).count("MY_API_KEY") == 1
+    assert shlex.split(cmd.split("; ")[0]).count("MY_API_KEY") == 1
     assert kwargs["envs"] == {
         "MY_API_KEY": "secret-value",
         "KITARU_API_URL": spec.server_url,
@@ -199,7 +203,7 @@ async def test_start_splits_a_configured_command(fake_e2b: _FakeAsyncSandbox) ->
     await ephemeral_workers.start(_spec())
 
     [(cmd, _)] = fake_e2b.sandbox.commands.calls
-    assert shlex.split(cmd)[-6:] == [
+    assert shlex.split(cmd.split("; ")[0])[-6:] == [
         "zenmldocker/kitaru-worker:1.0.0",
         "/app/.venv/bin/python",
         "-m",
@@ -219,4 +223,4 @@ async def test_start_defaults_to_the_published_worker_image(
     await ephemeral_workers.start(_spec())
 
     [(cmd, _)] = fake_e2b.sandbox.commands.calls
-    assert "zenmldocker/kitaru-worker:0.25.0" in shlex.split(cmd)
+    assert "zenmldocker/kitaru-worker:0.25.0" in shlex.split(cmd.split("; ")[0])

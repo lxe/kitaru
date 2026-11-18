@@ -15,7 +15,8 @@
 
 Orble serves the E2B API, so the backend uses the e2b SDK with Orble's
 domain. An Orble box is a full VM with Docker, so the worker image runs in a
-container inside it.
+container inside it. When the container exits, the box asks Orble to delete
+it, so it stops running before its timeout.
 """
 
 import shlex
@@ -24,6 +25,11 @@ from e2b import AsyncSandbox
 
 from kitaru.server.application.models.worker import EphemeralWorkerSpec
 from kitaru.server.ephemeral_worker_settings import EphemeralWorkerSettings
+
+# Orble deletes the box that sends this request, and only that box.
+_DELETE_THIS_BOX = (
+    "curl -fsS -m 10 -X POST http://169.254.77.77/orble/delete >/dev/null"
+)
 
 
 class OrbleEphemeralWorkers:
@@ -72,7 +78,7 @@ class OrbleEphemeralWorkers:
         for key in env:
             docker += ["--env", key]
         await sandbox.commands.run(
-            shlex.join([*docker, self._image, *self._command]),
+            f"{shlex.join([*docker, self._image, *self._command])}; {_DELETE_THIS_BOX}",
             background=True,
             envs=env,
             user="root",
