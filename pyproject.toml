@@ -90,6 +90,9 @@ s3 = [
 modal = [
     "modal>=1.5,<2",
 ]
+orble = [
+    "e2b>=2.64,<3",
+]
 
 [project.scripts]
 kitaru = "kitaru.cli:main"

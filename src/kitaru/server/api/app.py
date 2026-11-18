@@ -336,6 +336,14 @@ def create_app(settings: APISettings) -> FastAPI:
             app.state.ephemeral_workers = ModalEphemeralWorkers(
                 settings.EPHEMERAL_WORKER
             )
+        elif settings.EPHEMERAL_WORKER.backend is EphemeralWorkerBackend.ORBLE:
+            from kitaru.server.adapters.ephemeral_workers.orble import (
+                OrbleEphemeralWorkers,
+            )
+
+            app.state.ephemeral_workers = OrbleEphemeralWorkers(
+                settings.EPHEMERAL_WORKER
+            )
         async for session in database.get_async_session():
             server_id = await ensure_server_id(
                 SQLServerSettingsRepository(session), settings.SERVER_ID

@@ -104,7 +104,7 @@ changelog-check:
 
 # Prepare the frozen root environment used by Python static checks
 python-check-env:
-    uv sync --frozen --extra server --extra otel --extra mcp --extra cli --extra worker --extra s3 --extra modal --group fuzz
+    uv sync --frozen --extra server --extra otel --extra mcp --extra cli --extra worker --extra s3 --extra modal --extra orble --group fuzz
 
 # Run type checker
 typecheck: python-check-env

@@ -24,6 +24,7 @@ from kitaru.server.ephemeral_worker_settings import (
     EphemeralWorkerBackend,
     EphemeralWorkerSettings,
     ModalEphemeralWorkerSettings,
+    OrbleEphemeralWorkerSettings,
 )
 
 
@@ -143,3 +144,29 @@ def test_modal_backend_requires_server_url() -> None:
         EPHEMERAL_WORKER=ephemeral_worker, SERVER_URL="https://kitaru.example.com"
     )
     assert settings.EPHEMERAL_WORKER is ephemeral_worker
+
+
+def test_orble_backend_requires_orble_settings() -> None:
+    """Reject the orble backend with no orble sub-model set."""
+    with pytest.raises(
+        ValidationError, match="KITARU_SERVER_EPHEMERAL_WORKER__ORBLE__API_KEY"
+    ):
+        EphemeralWorkerSettings(backend=EphemeralWorkerBackend.ORBLE)
+
+
+def test_orble_settings_parsed_from_env_vars(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Parse the orble sub-model from its nested environment variables."""
+    monkeypatch.setenv("KITARU_SERVER_EPHEMERAL_WORKER__BACKEND", "orble")
+    monkeypatch.setenv("KITARU_SERVER_EPHEMERAL_WORKER__ORBLE__API_KEY", "orble-key")
+    monkeypatch.setenv(
+        "KITARU_SERVER_EPHEMERAL_WORKER__ORBLE__DOMAIN", "staging.orble.tech"
+    )
+
+    settings = local_settings(SERVER_URL="https://kitaru.example.com")
+
+    assert settings.EPHEMERAL_WORKER.backend == EphemeralWorkerBackend.ORBLE
+    assert settings.EPHEMERAL_WORKER.orble == OrbleEphemeralWorkerSettings(
+        api_key="orble-key", domain="staging.orble.tech"
+    )
+    assert settings.EPHEMERAL_WORKER.orble.template == "base"
+    assert "orble-key" not in repr(settings.EPHEMERAL_WORKER)

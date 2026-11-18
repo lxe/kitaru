@@ -346,6 +346,7 @@ server:
     #
     # none - Do not start ephemeral workers.
     # modal - Start ephemeral workers as Modal sandboxes.
+    # orble - Start ephemeral workers as Orble boxes.
     #
     # server.serverURL must be set when a backend is configured, since the
     # sandbox dials back to the server.
@@ -400,6 +401,19 @@ server:
       # The amount of memory in megabytes to allocate to the sandbox. If not
       # set, uses the Modal default.
       memoryMB:
+
+    # Settings for the orble backend. Only used when backend is set to orble.
+    orble:
+      # The Orble API key. For production deployments, consider referencing an
+      # existing Kubernetes secret through server.environmentSecretKeyRefs
+      # instead of setting this value directly.
+      apiKey:
+
+      # The domain of the Orble API.
+      domain: orble.tech
+
+      # The box size each worker runs in: base (2 vCPU, 4 GiB), m or l.
+      template: base
 
   # The size in bytes above which payload content is moved out of the
   # database into blob storage instead of stored inline.

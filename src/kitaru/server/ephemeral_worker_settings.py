@@ -29,6 +29,7 @@ class EphemeralWorkerBackend(StrEnum):
 
     NONE = "none"
     MODAL = "modal"
+    ORBLE = "orble"
 
 
 class ModalEphemeralWorkerSettings(BaseModel):
@@ -43,6 +44,14 @@ class ModalEphemeralWorkerSettings(BaseModel):
     memory_mb: int | None = None
 
 
+class OrbleEphemeralWorkerSettings(BaseModel):
+    """Orble ephemeral worker settings."""
+
+    api_key: SecretStr
+    domain: str = "orble.tech"
+    template: str = "base"
+
+
 class EphemeralWorkerSettings(BaseModel):
     """Ephemeral worker settings."""
 
@@ -53,6 +62,7 @@ class EphemeralWorkerSettings(BaseModel):
     env: dict[str, SecretStr] = {}
     selectors: list[LabelSelector] = []
     modal: ModalEphemeralWorkerSettings | None = None
+    orble: OrbleEphemeralWorkerSettings | None = None
 
     @model_validator(mode="after")
     def validate_backend_settings(self) -> Self:
@@ -68,6 +78,11 @@ class EphemeralWorkerSettings(BaseModel):
             raise ValueError(
                 "Set KITARU_SERVER_EPHEMERAL_WORKER__MODAL__TOKEN_ID when "
                 "KITARU_SERVER_EPHEMERAL_WORKER__BACKEND=modal"
+            )
+        if self.backend is EphemeralWorkerBackend.ORBLE and self.orble is None:
+            raise ValueError(
+                "Set KITARU_SERVER_EPHEMERAL_WORKER__ORBLE__API_KEY when "
+                "KITARU_SERVER_EPHEMERAL_WORKER__BACKEND=orble"
             )
         return self
 

@@ -76,7 +76,7 @@ blob_storage__s3__access_key_id: {{ .accessKeyID | quote }}
 {{- end }}
 {{- end }}
 
-{{- if eq .Kitaru.ephemeralWorker.backend "modal" }}
+{{- if or (eq .Kitaru.ephemeralWorker.backend "modal") (eq .Kitaru.ephemeralWorker.backend "orble") }}
 ephemeral_worker__backend: {{ .Kitaru.ephemeralWorker.backend | quote }}
 {{- if .Kitaru.ephemeralWorker.image }}
 ephemeral_worker__image: {{ .Kitaru.ephemeralWorker.image | quote }}
@@ -105,6 +105,16 @@ ephemeral_worker__modal__cpu: {{ .cpu | quote }}
 {{- end }}
 {{- if .memoryMB }}
 ephemeral_worker__modal__memory_mb: {{ .memoryMB | quote }}
+{{- end }}
+{{- end }}
+{{- if eq .Kitaru.ephemeralWorker.backend "orble" }}
+{{- with .Kitaru.ephemeralWorker.orble }}
+{{- if .domain }}
+ephemeral_worker__orble__domain: {{ .domain | quote }}
+{{- end }}
+{{- if .template }}
+ephemeral_worker__orble__template: {{ .template | quote }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
@@ -253,6 +263,9 @@ blob_storage__s3__secret_access_key: {{ .Kitaru.blobStorage.s3.secretAccessKey |
 {{- end }}
 {{- if and (eq .Kitaru.ephemeralWorker.backend "modal") .Kitaru.ephemeralWorker.modal.tokenSecret }}
 ephemeral_worker__modal__token_secret: {{ .Kitaru.ephemeralWorker.modal.tokenSecret | quote }}
+{{- end }}
+{{- if and (eq .Kitaru.ephemeralWorker.backend "orble") .Kitaru.ephemeralWorker.orble.apiKey }}
+ephemeral_worker__orble__api_key: {{ .Kitaru.ephemeralWorker.orble.apiKey | quote }}
 {{- end }}
 {{- if and (ne .Kitaru.ephemeralWorker.backend "none") .Kitaru.ephemeralWorker.env }}
 ephemeral_worker__env: {{ .Kitaru.ephemeralWorker.env | toJson | quote }}

@@ -1,0 +1,1 @@
+- Added an `orble` ephemeral worker backend, which runs each worker in an Orble box through Orble's E2B-compatible API. Set `KITARU_SERVER_EPHEMERAL_WORKER__BACKEND=orble` and `KITARU_SERVER_EPHEMERAL_WORKER__ORBLE__API_KEY`, and install the `orble` extra.
